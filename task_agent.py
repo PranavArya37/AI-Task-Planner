@@ -20,7 +20,7 @@ def summarize_tasks(tasks):
     Makes a call to the Gemini API with a prompt to categorize tasks.
     """
     # Instantiate the model from the new library
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-2.5-flash')
 
     prompt = f"""
     You are a smart task planning agent. Given a list of tasks, categorize them into 3 priority buckets:
