@@ -1,26 +1,24 @@
 import os
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 
 # --- Configuration ---
 try:
     # This works when running locally if you have a .env file
     from dotenv import load_dotenv
     load_dotenv()
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-except:
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+except Exception:
     # This works when deployed on Streamlit Community Cloud
     # where the secret is stored in st.secrets
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 
-# --- AI Function (same from task_agent.py) ---
+# --- AI Function ---
 def summarize_tasks(tasks):
     """Makes a call to the Gemini API with a prompt to categorize tasks."""
     if not tasks or not tasks.strip():
         return "Please provide some tasks to plan."
-
-    model = genai.GenerativeModel('gemini-1.5-flash')
     
     prompt = f"""
     You are a smart task planning agent. Your goal is to help users prioritize.
@@ -33,7 +31,10 @@ def summarize_tasks(tasks):
     """
     
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model='gemini-3.5-flash',
+            contents=prompt
+        )
         return response.text
     except Exception as e:
         print(f"An error occurred: {e}")

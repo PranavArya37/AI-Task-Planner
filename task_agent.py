@@ -1,12 +1,14 @@
 import os
 from dotenv import load_dotenv
-
-import google.generativeai as genai
+from google import genai
 
 # load env
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Create Gemini client
+client = genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
 
 # read task from file
 def read_tasks(filepath):
@@ -19,8 +21,6 @@ def summarize_tasks(tasks):
     """
     Makes a call to the Gemini API with a prompt to categorize tasks.
     """
-    # Instantiate the model from the new library
-    model = genai.GenerativeModel('gemini-1.5-flash')
 
     prompt = f"""
     You are a smart task planning agent. Given a list of tasks, categorize them into 3 priority buckets:
@@ -48,9 +48,13 @@ def summarize_tasks(tasks):
     response = model.generate_content(prompt)
 
     try:
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
         return response.text
-    except ValueError:
-        print("Response was blocked or failed. Feedback:", response.prompt_feedback)
+    except Exception as e:
+        print(f"Response failed: {e}")
         return "Could not generate summary."
 
 if __name__ == "__main__":
